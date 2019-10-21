@@ -21,7 +21,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False, help='Validate during training pass.')
 parser.add_argument('--sparse', action='store_true', default=False, help='GAT with sparse version or not.')
-parser.add_argument('--seed', type=int, default=72, help='Random seed.')
 parser.add_argument('--epochs', type=int, default=10000, help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
@@ -140,7 +139,7 @@ with tf.Graph().as_default():
                         lbl_in: y_train[tr_step*batch_size:(tr_step+1)*batch_size],
                         msk_in: train_mask[tr_step*batch_size:(tr_step+1)*batch_size],
                         is_train: True,
-                        attn_drop: 0.6, ffd_drop: 0.6})
+                        attn_drop: args.dropout, ffd_drop: args.dropout})
                 train_loss_avg += loss_value_tr
                 train_acc_avg += acc_tr
                 tr_step += 1

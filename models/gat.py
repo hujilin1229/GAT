@@ -24,8 +24,9 @@ class GAT(BaseGAttN):
         out = []
         for i in range(n_heads[-1]):
             out.append(layers.attn_head(h_1, bias_mat=bias_mat,
-                out_sz=nb_classes, activation=lambda x: x,
+                out_sz=nb_classes, activation=activation, # activation=lambda x: x,
                 in_drop=ffd_drop, coef_drop=attn_drop, residual=False))
+
         logits = tf.add_n(out) / n_heads[-1]
     
         return logits
