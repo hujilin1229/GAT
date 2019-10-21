@@ -68,9 +68,8 @@ if not os.path.exists(os.path.dirname(checkpt_file)):
     os.makedirs(os.path.dirname(checkpt_file))
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_image_data('./data/', args.dataset)
-print(y_train)
-print(y_train.shape)
-print(train_mask)
+print(adj.data)
+print(adj.nnz)
 # features, spars = process.preprocess_features(features)
 
 nb_nodes = features.shape[0]
@@ -103,7 +102,7 @@ with tf.Graph().as_default():
     logits = model.inference(ftr_in, nb_classes, nb_nodes, is_train,
                              attn_drop, ffd_drop,
                              bias_mat=bias_in,
-                             hid_units=[args.hidden], n_heads=[args.nb_heads, 1],
+                             hid_units=[args.hidden], n_heads=[args.nb_heads, 8],
                              residual=residual, activation=nonlinearity)
     log_resh = tf.reshape(logits, [-1, nb_classes])
     lab_resh = tf.reshape(lbl_in, [-1, nb_classes])
