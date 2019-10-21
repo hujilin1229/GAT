@@ -164,7 +164,7 @@ with tf.Graph().as_default():
                     (train_loss_avg/tr_step, train_acc_avg/tr_step,
                     val_loss_avg/vl_step, val_acc_avg/vl_step), flush=True)
 
-            if val_acc_avg/vl_step >= vacc_mx or val_loss_avg/vl_step <= vlss_mn:
+            if val_acc_avg/vl_step > vacc_mx or val_loss_avg/vl_step <= vlss_mn:
                 if val_acc_avg/vl_step >= vacc_mx and val_loss_avg/vl_step <= vlss_mn:
                     vacc_early_model = val_acc_avg/vl_step
                     vlss_early_model = val_loss_avg/vl_step
