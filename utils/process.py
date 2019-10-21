@@ -133,7 +133,7 @@ def load_image_data(data_path, data_name, num_labeled=1000, num_valid=1000): # {
     features = np.reshape(features, (N, -1))
     unique_labels = np.unique(labels)
     one_hot_labels = np.zeros((N, len(unique_labels)), np.int)
-    one_hot_labels[:, labels] = 1
+    one_hot_labels[np.arange(N), labels] = 1
 
     train_mask = sample_mask(idx_train, N)
     val_mask = sample_mask(idx_val, N)

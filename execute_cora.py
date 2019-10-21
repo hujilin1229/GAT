@@ -35,6 +35,7 @@ print('model: ' + str(model))
 
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_data(dataset)
 # print(y_train.shape)
+# print(y_train)
 features, spars = process.preprocess_features(features)
 
 nb_nodes = features.shape[0]
