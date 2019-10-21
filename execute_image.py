@@ -4,9 +4,16 @@ import tensorflow as tf
 from models import GAT
 from utils import process
 import argparse
+import os
 
-checkpt_file = 'pre_trained/cora/mod_cora.ckpt'
+# checkpt_file = 'pre_trained/cora/mod_cora.ckpt'
 
+# NUM_PARALLEL_EXEC_UNITS = 4
+# os.environ['OMP_NUM_THREADS'] = str(NUM_PARALLEL_EXEC_UNITS)
+# os.environ["KMP_AFFINITY"] = "granularity=fine,verbose,compact,1,0"
+#os.environ["KMP_AFFINITY"] = "verbose" # no affinity
+#os.environ["KMP_AFFINITY"] = "none" # no affinity
+os.environ["KMP_AFFINITY"] = "disabled" # completely disable thread pools
 
 # Training settings
 # Training settings
@@ -56,8 +63,14 @@ print('nb. attention heads: ' + str(args.nb_heads))
 # print('nonlinearity: ' + str(nonlinearity))
 print('model: ' + str(model))
 
+checkpt_file = f'pre_trained/{args.dataset}/best_model.ckpt'
+if not os.path.exists(os.path.dirname(checkpt_file)):
+    os.makedirs(os.path.dirname(checkpt_file))
+
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_image_data('./data/', args.dataset)
 print(y_train)
+print(y_train.shape)
+print(train_mask)
 # features, spars = process.preprocess_features(features)
 
 nb_nodes = features.shape[0]
@@ -88,10 +101,10 @@ with tf.Graph().as_default():
         is_train = tf.placeholder(dtype=tf.bool, shape=())
 
     logits = model.inference(ftr_in, nb_classes, nb_nodes, is_train,
-                                attn_drop, ffd_drop,
-                                bias_mat=bias_in,
-                                hid_units=[args.hidden], n_heads=[args.nb_heads],
-                                residual=residual, activation=nonlinearity)
+                             attn_drop, ffd_drop,
+                             bias_mat=bias_in,
+                             hid_units=[args.hidden], n_heads=[args.nb_heads, 1],
+                             residual=residual, activation=nonlinearity)
     log_resh = tf.reshape(logits, [-1, nb_classes])
     lab_resh = tf.reshape(lbl_in, [-1, nb_classes])
     msk_resh = tf.reshape(msk_in, [-1])
@@ -151,7 +164,7 @@ with tf.Graph().as_default():
 
             print('Training: loss = %.5f, acc = %.5f | Val: loss = %.5f, acc = %.5f' %
                     (train_loss_avg/tr_step, train_acc_avg/tr_step,
-                    val_loss_avg/vl_step, val_acc_avg/vl_step))
+                    val_loss_avg/vl_step, val_acc_avg/vl_step), flush=True)
 
             if val_acc_avg/vl_step >= vacc_mx or val_loss_avg/vl_step <= vlss_mn:
                 if val_acc_avg/vl_step >= vacc_mx and val_loss_avg/vl_step <= vlss_mn:
@@ -164,8 +177,9 @@ with tf.Graph().as_default():
             else:
                 curr_step += 1
                 if curr_step == args.patience:
-                    print('Early stop! Min loss: ', vlss_mn, ', Max accuracy: ', vacc_mx)
-                    print('Early stop model validation loss: ', vlss_early_model, ', accuracy: ', vacc_early_model)
+                    print('Early stop! Min loss: ', vlss_mn, ', Max accuracy: ', vacc_mx, flush=True)
+                    print('Early stop model validation loss: ',
+                          vlss_early_model, ', accuracy: ', vacc_early_model, flush=True)
                     break
 
             train_loss_avg = 0
@@ -193,6 +207,6 @@ with tf.Graph().as_default():
             ts_acc += acc_ts
             ts_step += 1
 
-        print('Test loss:', ts_loss/ts_step, '; Test accuracy:', ts_acc/ts_step)
+        print('Test loss:', ts_loss/ts_step, '; Test accuracy:', ts_acc/ts_step, flush=True)
 
         sess.close()
