@@ -89,7 +89,7 @@ with tf.Graph().as_default():
     logits = model.inference(ftr_in, nb_classes, nb_nodes, is_train,
                                 attn_drop, ffd_drop,
                                 bias_mat=bias_in,
-                                hid_units=args.hidden, n_heads=args.n_heads,
+                                hid_units=[args.hidden], n_heads=args.nb_heads,
                                 residual=residual, activation=nonlinearity)
     log_resh = tf.reshape(logits, [-1, nb_classes])
     lab_resh = tf.reshape(lbl_in, [-1, nb_classes])
