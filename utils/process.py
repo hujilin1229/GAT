@@ -96,10 +96,12 @@ def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
 
     return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask
 
-def load_image_data(data_path, data_name, num_labeled=1000, num_valid=1000): # {'svhn', 'cifar10', 'mnist'}
+def load_image_data(data_path, data_name, num_labeled=1000, num_valid=1000, featmap=False): # {'svhn', 'cifar10', 'mnist'}
     """Load data."""
     data_path = os.path.join(data_path, data_name)
     features = np.load(data_path + '/all_input.npy')
+    if featmap:
+        features = np.load(data_path + '/all_featmap.npy')
     N = features.shape[0]
     labels = np.load(data_path + '/all_target.npy').astype(np.int)
 

@@ -26,7 +26,7 @@ parser.add_argument('--lr', type=float, default=0.005, help='Initial learning ra
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
-parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
+parser.add_argument('--dropout', type=float, default=0.2, help='Dropout rate (1 - keep probability).')
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 parser.add_argument('--patience', type=int, default=100, help='Patience')
 
@@ -67,7 +67,8 @@ checkpt_file = f'pre_trained/{args.dataset}/best_model.ckpt'
 if not os.path.exists(os.path.dirname(checkpt_file)):
     os.makedirs(os.path.dirname(checkpt_file))
 
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_image_data('./data/', args.dataset)
+adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = process.load_image_data(
+    args.data_dir, args.dataset, featmap=True)
 print(adj.data)
 print(adj.nnz)
 # features, spars = process.preprocess_features(features)
@@ -122,6 +123,8 @@ with tf.Graph().as_default():
 
     with tf.Session() as sess:
         sess.run(init_op)
+        if os.path.exists(checkpt_file):
+            saver.restore(sess, checkpt_file)
 
         train_loss_avg = 0
         train_acc_avg = 0
